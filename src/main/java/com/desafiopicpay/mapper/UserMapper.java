@@ -23,6 +23,7 @@ public class UserMapper {
                 user.getName(),
                 user.getDocument(),
                 user.getEmail(),
+                user.getBalance(),
                 user.getRole(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
