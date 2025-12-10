@@ -49,7 +49,7 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "An expected error occurred",
+                e.getMessage(),
                 request.getRequestURI()
         );
     }
