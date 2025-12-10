@@ -7,6 +7,7 @@ import com.desafiopicpay.exception.ConflictException;
 import com.desafiopicpay.mapper.UserMapper;
 import com.desafiopicpay.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO createUser(UserRequestDTO dto) {
         if (userRepository.existsByEmailOrDocument(dto.email(), dto.document())) {
@@ -22,6 +24,8 @@ public class UserService {
         }
 
         User user = userMapper.mapToUser(dto);
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
 
         return userMapper.mapToUserResponseDTO(userRepository.save(user));
     }

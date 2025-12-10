@@ -2,6 +2,8 @@ package com.desafiopicpay.exception.handler;
 
 import com.desafiopicpay.dto.error.ErrorResponse;
 import com.desafiopicpay.exception.ConflictException;
+import com.desafiopicpay.exception.NotFoundException;
+import com.desafiopicpay.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -40,6 +42,28 @@ public class GlobalExceptionHandler {
                 "One or more fields have an error",
                 request.getRequestURI(),
                 errorsList
+        );
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(NotFoundException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.NOT_FOUND.value(),
+                "Not found",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleUnauthorizedException(UnauthorizedException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                e.getMessage(),
+                request.getRequestURI()
         );
     }
 
