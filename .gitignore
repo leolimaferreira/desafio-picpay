@@ -33,10 +33,10 @@ build/
 .vscode/
 
 ### Schema ###
-/schema
+schema/
 
 ### Enviroment Files ###
-/env
+env/
 
 ### Docker Compose ###
 compose.yaml
