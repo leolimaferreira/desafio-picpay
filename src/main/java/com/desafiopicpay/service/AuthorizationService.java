@@ -33,7 +33,7 @@ public class AuthorizationService {
 
         log.info("Founded user: {}, role: {}", user.getName(), user.getRole());
 
-        if (!passwordEncoder.matches(dto.senha(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.password(), user.getPassword())) {
             log.warn(INVALID_EMAIL_OR_PASSWORD);
             throw new BadCredentialsException("Invalid credentials");
         }

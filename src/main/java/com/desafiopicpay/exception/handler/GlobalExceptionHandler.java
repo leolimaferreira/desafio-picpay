@@ -2,6 +2,7 @@ package com.desafiopicpay.exception.handler;
 
 import com.desafiopicpay.dto.error.ErrorResponse;
 import com.desafiopicpay.exception.ConflictException;
+import com.desafiopicpay.exception.InsufficientBalanceException;
 import com.desafiopicpay.exception.NotFoundException;
 import com.desafiopicpay.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,6 +63,17 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(
                 HttpStatus.UNAUTHORIZED.value(),
                 "Unauthorized",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInsufficientBalanceException(InsufficientBalanceException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad request",
                 e.getMessage(),
                 request.getRequestURI()
         );

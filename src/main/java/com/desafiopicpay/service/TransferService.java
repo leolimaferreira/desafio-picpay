@@ -14,6 +14,7 @@ import com.desafiopicpay.repository.TransferRepository;
 import com.desafiopicpay.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,7 +25,10 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final TransferMapper transferMapper;
     private final UserRepository userRepository;
+    private final ExternalAuthorizationService externalAuthorizationService;
+    private final NotificationService notificationService;
 
+    @Transactional
     public TransferResponseDTO createTransfer(TransferRequestDTO dto, String token) {
         User payer = userRepository.findById(dto.payerId())
                 .orElseThrow(() -> new NotFoundException("Payer not found"));
@@ -44,13 +48,23 @@ public class TransferService {
             throw new InsufficientBalanceException("Insufficient balance for the transfer");
         }
 
+        if (!externalAuthorizationService.authorize()) {
+            throw new UnauthorizedException("Transfer not authorized by external service");
+        }
+
         Transfer transfer = transferMapper.mapToTransfer(payer, payee, dto.value());
 
         payer.setBalance(payer.getBalance().subtract(dto.value()));
         payee.setBalance(payee.getBalance().add(dto.value()));
 
         userRepository.saveAll(List.of(payer, payee));
+        TransferResponseDTO response = transferMapper.mapToTransferResponseDTO(transferRepository.save(transfer));
 
-        return transferMapper.mapToTransferResponseDTO(transferRepository.save(transfer));
+        notificationService.sendNotification(
+                payee.getId().toString(),
+                String.format("You received a transfer with the amount R$ %.2f", dto.value())
+        );
+
+        return response;
     }
 }
