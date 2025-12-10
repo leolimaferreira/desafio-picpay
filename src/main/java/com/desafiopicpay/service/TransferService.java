@@ -1,5 +1,7 @@
 package com.desafiopicpay.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.desafiopicpay.dto.transfer.TransferRequestDTO;
 import com.desafiopicpay.dto.transfer.TransferResponseDTO;
 import com.desafiopicpay.entities.Transfer;
@@ -23,14 +25,18 @@ public class TransferService {
     private final TransferMapper transferMapper;
     private final UserRepository userRepository;
 
-    public TransferResponseDTO createTransfer(TransferRequestDTO dto) {
+    public TransferResponseDTO createTransfer(TransferRequestDTO dto, String token) {
         User payer = userRepository.findById(dto.payerId())
                 .orElseThrow(() -> new NotFoundException("Payer not found"));
 
         User payee = userRepository.findById(dto.payeeId())
                 .orElseThrow(() -> new NotFoundException("Payee not found"));
 
-        if (payer.getRole().toString().equals("LOJISTA")) {
+        DecodedJWT decodedJWT = JWT.decode(token);
+
+        boolean activeUserIsLojista = decodedJWT.getClaim("role").toString().equals("LOJISTA");
+
+        if (payer.getRole().toString().equals("LOJISTA") || activeUserIsLojista) {
             throw new UnauthorizedException("Lojista users cannot initiate transfers");
         }
 

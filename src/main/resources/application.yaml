@@ -17,4 +17,5 @@ spring:
 
 picpay:
   api:
-    secret: ${PICPAY_SECRET}
+    security:
+     secret: ${PICPAY_SECRET}

@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/authorization/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/transfers").authenticated()
                         .requestMatchers(getDocumentationEndpoints()).permitAll()
                         .anyRequest().authenticated())

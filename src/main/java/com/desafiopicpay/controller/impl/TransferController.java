@@ -7,10 +7,7 @@ import com.desafiopicpay.service.TransferService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 
@@ -22,8 +19,11 @@ public class TransferController implements GenericController {
     private final TransferService transferService;
 
     @PostMapping
-    public ResponseEntity<TransferResponseDTO> create(@RequestBody @Valid TransferRequestDTO dto) {
-        TransferResponseDTO transfer = transferService.createTransfer(dto);
+    public ResponseEntity<TransferResponseDTO> create(
+            @RequestBody @Valid TransferRequestDTO dto,
+            @RequestHeader(name = "Authorization") String token
+    ) {
+        TransferResponseDTO transfer = transferService.createTransfer(dto, token);
         URI location = generateHeaderLocation(transfer.id());
         return ResponseEntity.created(location).body(transfer);
     }
