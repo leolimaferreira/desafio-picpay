@@ -13,6 +13,8 @@ import com.desafiopicpay.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TransferService {
@@ -37,6 +39,11 @@ public class TransferService {
         }
 
         Transfer transfer = transferMapper.mapToTransfer(payer, payee, dto.value());
+
+        payer.setBalance(payer.getBalance().subtract(dto.value()));
+        payee.setBalance(payee.getBalance().add(dto.value()));
+
+        userRepository.saveAll(List.of(payer, payee));
 
         return transferMapper.mapToTransferResponseDTO(transferRepository.save(transfer));
     }
