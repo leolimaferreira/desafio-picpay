@@ -40,7 +40,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var login = tokenService.validateToken(token);
             log.debug("Token login: {}", login);
 
-            if (login != null && !login.isBlank()) {
+            if (login != null && !login.isEmpty()) {
                 User user = userRepository.findById(UUID.fromString(login))
                         .orElseThrow(() -> new NotFoundException("User not found"));
 

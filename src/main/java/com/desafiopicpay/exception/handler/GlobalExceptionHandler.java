@@ -66,6 +66,9 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInsufficientBalanceException(InsufficientBalanceException e, HttpServletRequest request) {
     @ExceptionHandler(ExpiredRecoveryTokenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleExpiredRecoveryTokenException(ExpiredRecoveryTokenException e, HttpServletRequest request) {
