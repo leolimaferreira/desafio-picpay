@@ -16,6 +16,8 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final String BAD_REQUEST = "Bad request";
+
     @ExceptionHandler(ConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleConflictException(ConflictException e, HttpServletRequest request) {
@@ -69,12 +71,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientBalanceException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInsufficientBalanceException(InsufficientBalanceException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                BAD_REQUEST,
+                e.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
     @ExceptionHandler(ExpiredRecoveryTokenException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleExpiredRecoveryTokenException(ExpiredRecoveryTokenException e, HttpServletRequest request) {
         return ErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad request",
+                BAD_REQUEST,
                 e.getMessage(),
                 request.getRequestURI()
         );
@@ -85,7 +95,7 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleSamePasswordException(SamePasswordException e, HttpServletRequest request) {
         return ErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad request",
+                BAD_REQUEST,
                 e.getMessage(),
                 request.getRequestURI()
         );
