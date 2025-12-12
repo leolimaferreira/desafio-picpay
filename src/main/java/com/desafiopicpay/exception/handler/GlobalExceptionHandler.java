@@ -1,12 +1,10 @@
 package com.desafiopicpay.exception.handler;
 
 import com.desafiopicpay.dto.error.ErrorResponse;
-import com.desafiopicpay.exception.ConflictException;
-import com.desafiopicpay.exception.InsufficientBalanceException;
-import com.desafiopicpay.exception.NotFoundException;
-import com.desafiopicpay.exception.UnauthorizedException;
+import com.desafiopicpay.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -71,6 +69,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientBalanceException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleInsufficientBalanceException(InsufficientBalanceException e, HttpServletRequest request) {
+    @ExceptionHandler(ExpiredRecoveryTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleExpiredRecoveryTokenException(ExpiredRecoveryTokenException e, HttpServletRequest request) {
         return ErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(),
                 "Bad request",
@@ -79,6 +80,27 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(SamePasswordException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleSamePasswordException(SamePasswordException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad request",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentialsException(BadCredentialsException e, HttpServletRequest request) {
+        return ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                e.getMessage(),
+                request.getRequestURI()
+        );
+    }
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGenericException(Exception e, HttpServletRequest request) {
