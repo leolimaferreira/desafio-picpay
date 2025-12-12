@@ -15,6 +15,8 @@ import com.desafiopicpay.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -25,8 +27,8 @@ public class TransferService {
     private final TransferRepository transferRepository;
     private final TransferMapper transferMapper;
     private final UserRepository userRepository;
-    private final ExternalAuthorizationService externalAuthorizationService;
-    private final NotificationService notificationService;
+    private final MockAuthorizationService externalAuthorizationService;
+    private final MockNotificationService notificationService;
 
     @Transactional
     public TransferResponseDTO createTransfer(TransferRequestDTO dto, String token) {
@@ -37,7 +39,6 @@ public class TransferService {
                 .orElseThrow(() -> new NotFoundException("Payee not found"));
 
         DecodedJWT decodedJWT = JWT.decode(token);
-
         boolean activeUserIsLojista = decodedJWT.getClaim("role").toString().equals("LOJISTA");
 
         if (payer.getRole().toString().equals("LOJISTA") || activeUserIsLojista) {
@@ -60,10 +61,15 @@ public class TransferService {
         userRepository.saveAll(List.of(payer, payee));
         TransferResponseDTO response = transferMapper.mapToTransferResponseDTO(transferRepository.save(transfer));
 
-        notificationService.sendNotification(
-                payee.getId().toString(),
-                String.format("You received a transfer with the amount R$ %.2f", dto.value())
-        );
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                notificationService.sendNotification(
+                        payee.getId().toString(),
+                        String.format("You received a transfer with the amount R$ %.2f", dto.value())
+                );
+            }
+        });
 
         return response;
     }
